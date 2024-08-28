@@ -2,6 +2,8 @@ import { Request } from 'express'
 import formidable, { File } from 'formidable'
 import fs from 'fs'
 import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '../src/constants/dir'
+import path from 'path'
+import nanoid from 'nanoid'
 
 // nếu trong server chưa có file " uploads " chỉ cần chạy lại server thì tạo lại 1 file mới
 export const initFolder = () => {
@@ -44,38 +46,95 @@ export const handleUploadImage = async (req: Request) => {
   })
 }
 
+// Cách 1: Tạo unique id cho video ngay từ đầu
+// Cách 2: Đợi video upload xong rồi tạo folder, move video vào
+
+// Cách xử lý khi upload video và encode
+// Có 2 giai đoạn
+// Upload video: Upload video thành công thì resolve về cho người dùng
+// Encode video: Khai bao thêm 1 url endpoint đe check xem cái video đó đã encode xong chưa
+
+// export const handleUploadVideo = async (req: Request) => {
+//   const formidable = (await import('formidable')).default
+//   const { nanoid } = await import('nanoid')
+//   const idName = nanoid()
+//   const folderPath = path.resolve(UPLOAD_VIDEO_DIR)
+//   fs.mkdirSync(folderPath)
+
+//   const form = formidable({
+//     uploadDir: folderPath,
+//     // uploadDir: UPLOAD_VIDEO_DIR,
+//     maxFiles: 1,
+//     maxFileSize: 50 * 1024 * 1024, // 50MB
+//     filter: function ({ name, originalFilename, mimetype }) {
+//       const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'))
+//       return valid
+//     },
+//     filename: function (name, ext, part) {
+//       return idName + ext
+//     }
+//   })
+
+//   return new Promise<File[]>((resolve, reject) => {
+//     form.parse(req, (err, fields, files) => {
+//       if (err) {
+//         return reject(err)
+//       }
+//       if (!files.video || files.video.length === 0) {
+//         return reject(new Error('Tập tin rỗng'))
+//       }
+//       const videos = Array.isArray(files.video) ? files.video : [files.video]
+//       videos.forEach((video) => {
+//         const ext = getExtension(video.originalFilename as string)
+//         fs.renameSync(video.filepath, video.filepath + '.' + ext)
+//         video.newFilename += '.' + ext
+//         video.filepath += '.' + ext
+//       })
+//       resolve(videos)
+//     })
+//   })
+// }
+
 export const handleUploadVideo = async (req: Request) => {
-  //const formidable = (await import('formidable')).default
+  const formidable = (await import('formidable')).default
+  const { nanoid } = await import('nanoid')
+  const idName = nanoid()
+  const folderPath = path.resolve(UPLOAD_VIDEO_DIR)
+
+  // Kiểm tra nếu thư mục đã tồn tại trước khi tạo
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath)
+  }
+
   const form = formidable({
-    uploadDir: UPLOAD_VIDEO_DIR,
+    uploadDir: folderPath,
     maxFiles: 1,
-    //keepExtensions: true,
-    maxFileSize: 500 * 1024 * 1024, // 50MB
+    maxFileSize: 50 * 1024 * 1024, // 50MB
     filter: function ({ name, originalFilename, mimetype }) {
-      return true
-      // const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
-      // if (!valid) {
-      //   form.emit('error' as any, new Error('Loại tệp không hợp lệ') as any)
-      // }
-      // return true
+      const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'))
+      return valid
+    },
+    filename: function (name, ext, part) {
+      return idName + ext
     }
   })
+
   return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
       }
-      //eslint-disable-next-line no-extra-boolean-cast
-      if (!Boolean(files.video)) {
+      if (!files.video || files.video.length === 0) {
         return reject(new Error('Tập tin rỗng'))
       }
-      const videos = files.video as File[]
+      const videos = Array.isArray(files.video) ? files.video : [files.video]
       videos.forEach((video) => {
         const ext = getExtension(video.originalFilename as string)
         fs.renameSync(video.filepath, video.filepath + '.' + ext)
-        video.newFilename = video.newFilename + '.' + ext
+        video.newFilename += '.' + ext
+        video.filepath += '.' + ext
       })
-      resolve(files.video as File[])
+      resolve(videos)
     })
   })
 }

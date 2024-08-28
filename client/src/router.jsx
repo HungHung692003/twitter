@@ -8,7 +8,7 @@ import ResetPassword from "./ResetPassword";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "",
     element: (
       <Home />
     ),

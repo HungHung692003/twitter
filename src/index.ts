@@ -3,15 +3,17 @@ import DatabaseService from './services/database.services'
 import UserRouter from './routes/users.routes'
 import express from 'express'
 import { defaultErrorHandler } from './middlewares/ErrorHandler'
-import cors from 'cors'
 import mediasRouter from './routes/medias.routes'
 import { config } from 'dotenv'
 import staticRouter from './routes/static.routes'
+import { UPLOAD_VIDEO_DIR } from './constants/dir'
+import cors from 'cors'
 
 config()
 //database
 DatabaseService.connect()
 const app = express()
+app.use(cors())
 const port = process.env.PORT || 3000
 
 initFolder() // nếu trong server chưa có file " uploads " chỉ cần chạy lại server thì tạo lại 1 file mới
@@ -35,6 +37,7 @@ app.use('/medias', mediasRouter)
 
 //router ảnh
 app.use('/static', staticRouter)
+app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 
 app.use(defaultErrorHandler)
 

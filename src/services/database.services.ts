@@ -3,6 +3,7 @@ import { MongoClient, Db, Collection } from 'mongodb'
 import User from '../models/schemas/User.schema'
 import RefreshToken from '../models/schemas/ResfestToken.Schema'
 import Followers from '../models/schemas/Follower.schema'
+import VideoStatus from './../models/schemas/VideoStatus.schema'
 
 config() // config(): Chức năng này đọc tệp .env và làm cho nội dung của nó có sẵn thông qua process.env
 
@@ -32,13 +33,17 @@ class DatabaseService {
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
   }
 
- //Nếu collection với tên chỉ định bởi process.env.DB_USERS_COLLECTION đã tồn tại trong cơ sở dữ liệu, thì phương thức này sẽ trả về đối tượng Collection<User> để bạn có thể thao tác với collection đó (DB_REFESH_TOKENS_COLLECTION) trên database.
- //Nếu collection chưa tồn tại, MongoDB sẽ tự động tạo mới collection đó khi bạn thực hiện thao tác ghi
+  //Nếu collection với tên chỉ định bởi process.env.DB_USERS_COLLECTION đã tồn tại trong cơ sở dữ liệu, thì phương thức này sẽ trả về đối tượng Collection<User> để bạn có thể thao tác với collection đó (DB_REFESH_TOKENS_COLLECTION) trên database.
+  //Nếu collection chưa tồn tại, MongoDB sẽ tự động tạo mới collection đó khi bạn thực hiện thao tác ghi
   get refeshToken(): Collection<RefreshToken> {
     return this.db.collection(process.env.DB_REFESH_TOKENS_COLLECTION as string)
   }
   get followers(): Collection<Followers> {
     return this.db.collection(process.env.DB_FOLLOWERS_CQLLECTION as string)
+  }
+
+  get videoStatus(): Collection<VideoStatus> {
+    return this.db.collection(process.env.DB_VIDEO_STATUS_COLLECTION as string)
   }
 }
 
