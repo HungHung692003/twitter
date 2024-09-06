@@ -1,9 +1,9 @@
-import { ObjectId, WithId } from 'mongodb'
+import { ObjectId } from 'mongodb'
 import databaseService from './database.services'
 import Likes from '../models/schemas/Like.schema'
 
 class LikesService {
-  async likeTweet(user_id: string, tweet_id: string): Promise<WithId<Likes> | null> {
+  async likesTweet(user_id: string, tweet_id: string) {
     const result = await databaseService.likes.findOneAndUpdate(
       {
         user_id: new ObjectId(user_id),
@@ -23,7 +23,7 @@ class LikesService {
     return result
   }
 
-  async unlikeTweet(user_id: string, tweet_id: string): Promise<WithId<Likes> | null> {
+  async unlikesTweet(user_id: string, tweet_id: string) {
     const result = await databaseService.likes.findOneAndDelete({
       user_id: new ObjectId(user_id),
       tweet_id: new ObjectId(tweet_id)
