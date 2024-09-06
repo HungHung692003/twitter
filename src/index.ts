@@ -8,6 +8,9 @@ import { config } from 'dotenv'
 import staticRouter from './routes/static.routes'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
+import tweetsRouter from './routes/tweets.router'
+import bookmarksRouter from './routes/bookmarks.routes'
+import likesRouter from './routes/likes.routes'
 
 config()
 //database
@@ -38,6 +41,13 @@ app.use('/medias', mediasRouter)
 //router ảnh
 app.use('/static', staticRouter)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
+
+//Tweets
+app.use('/tweets', tweetsRouter)
+//Bookmarks
+app.use('/bookmarks', bookmarksRouter)
+//Likes
+app.use('/likes', likesRouter)
 
 app.use(defaultErrorHandler)
 

@@ -78,7 +78,7 @@ class UsersService {
       user_id: user_id.toString(),
       verify: UserVerifyStatus.Unverified
     })
-    console.log(email_verify_token)
+    console.log('email_verify_token: ', email_verify_token)
     await databaseService.users.insertOne(
       new User({
         _id: user_id,
