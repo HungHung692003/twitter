@@ -57,10 +57,10 @@ export const registerController = async (
 }
 
 export const logoutController = async (req: CustomRequest<LogoutReqBody>, res: Response) => {
-  const { decoded_authorizations } = req // Lấy thông tin giải mã từ access token từ  req.decoded_authorizations = decoded_authorization
+  const { decoded_authorization } = req // Lấy thông tin giải mã từ access token từ  req.decoded_authorization = decoded_authorization
 
   // Chuyển đổi user_id thành ObjectId nếu cần
-  const user_id = decoded_authorizations.user_id
+  const user_id = decoded_authorization.user_id
   // console.log(user_id)
   // Kiểm tra xem access token có thuộc về người dùng hiện tại không
   const user = await usersService.SeachUserById_in_colum_refreshToken(user_id)
@@ -100,8 +100,8 @@ export const verifyEmailController = async (req: CustomRequest, res: Response, n
 }
 //khi người dùng muốn gửi lại email xác thực thì chạy link này
 export const resendverifyEmailController = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  const { decoded_authorizations } = req
-  const user_id = decoded_authorizations.user_id
+  const { decoded_authorization } = req
+  const user_id = decoded_authorization.user_id
   const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
   // console.log(user)
   if (!user) {
@@ -151,7 +151,7 @@ export const resetPasswordController = async (
 }
 
 export const getMeController = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  const { user_id } = req.decoded_authorizations as TokenPayload
+  const { user_id } = req.decoded_authorization as TokenPayload
   const user = await usersService.getMe(user_id)
   return res.json({
     message: USERS_MESSAGES.GET_ME_SUCCESS,
@@ -159,7 +159,7 @@ export const getMeController = async (req: CustomRequest, res: Response, next: N
   })
 }
 export const updateMeController = async (req: CustomRequest<UpdateMeReqBody>, res: Response, next: NextFunction) => {
-  const { user_id } = req.decoded_authorizations as TokenPayload
+  const { user_id } = req.decoded_authorization as TokenPayload
   const { body } = req
   const user = await usersService.updateMe(user_id, body)
   // console.log(user)
@@ -171,7 +171,7 @@ export const updateMeController = async (req: CustomRequest<UpdateMeReqBody>, re
 //L
 export const getUsersForFollow = async (req: CustomRequest, res: Response) => {
   try {
-    const { user_id } = req.decoded_authorizations as TokenPayload // Lấy ID của người dùng hiện tại từ token
+    const { user_id } = req.decoded_authorization as TokenPayload // Lấy ID của người dùng hiện tại từ token
     const _id = new ObjectId(user_id)
     const users = await databaseService.users.find({ _id: { $ne: _id } }).toArray() // Tìm tất cả người dùng trừ người dùng hiện tại
     res.json(users) // Trả về danh sách người dùng để view lên màn hình
@@ -182,7 +182,7 @@ export const getUsersForFollow = async (req: CustomRequest, res: Response) => {
 }
 
 export const followController = async (req: CustomRequest<followReqBody>, res: Response, next: NextFunction) => {
-  const { user_id } = req.decoded_authorizations as TokenPayload
+  const { user_id } = req.decoded_authorization as TokenPayload
   const { followed_user_id } = req.body
   const user = await usersService.followe(user_id, followed_user_id)
   // console.log(user)
@@ -191,7 +191,7 @@ export const followController = async (req: CustomRequest<followReqBody>, res: R
   })
 }
 export const unfollowController = async (req: CustomRequest<UnfollowReqParams>, res: Response, next: NextFunction) => {
-  const { user_id } = req.decoded_authorizations as TokenPayload
+  const { user_id } = req.decoded_authorization as TokenPayload
   const followed_user_id = req.params.user_id
   const result = await usersService.unfollowe(user_id, followed_user_id)
   return res.json(result)
@@ -202,7 +202,7 @@ export const changePasswordController = async (
   res: Response,
   next: NextFunction
 ) => {
-  const {user_id} = req.decoded_authorizations as TokenPayload
+  const {user_id} = req.decoded_authorization as TokenPayload
   const {password} = req.body
   const result = await usersService.changePassword(user_id, password)
   return res.json(result)

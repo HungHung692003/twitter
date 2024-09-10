@@ -1,4 +1,4 @@
-import { TweetAudience, TweetType } from '@/constants/enums'
+import { TweetAudience, TweetType } from '../../constants/enums'
 import { ObjectId } from 'mongodb'
 import { Media } from '../Other'
 

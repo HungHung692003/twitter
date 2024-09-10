@@ -6,7 +6,7 @@ import likesService from '../services/likes.service'
 import { LikesTweetReqBody } from '../models/requests/Likes.requests'
 
 export const likesTweetController = async (req: CustomRequest<LikesTweetReqBody>, res: Response) => {
-  const { user_id } = req.decoded_authorizations as TokenPayload
+  const { user_id } = req.decoded_authorization as TokenPayload
   const result = await likesService.likesTweet(user_id, req.body.tweet_id)
   return res.json({
     message: LIKES_MESSAGES.LIKES_SUCCESSFULLY,
@@ -15,8 +15,8 @@ export const likesTweetController = async (req: CustomRequest<LikesTweetReqBody>
 }
 
 export const unlikesTweetController = async (req: CustomRequest<LikesTweetReqBody>, res: Response) => {
-  const { user_id } = req.decoded_authorizations as TokenPayload
-  const result = await likesService.unlikesTweet(user_id, req.body.tweet_id)
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const result = await likesService.unlikesTweet(user_id, req.params.tweet_id)
   return res.json({
     message: LIKES_MESSAGES.UNLIKES_SUCCESSFULLY,
     result

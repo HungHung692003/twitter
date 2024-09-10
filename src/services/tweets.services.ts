@@ -32,7 +32,7 @@ class TweetsService {
       new Tweet({
         audience: body.audience,
         content: body.content,
-        hashtags, // chỗ này chưa làm tạm thời để rỗng
+        hashtags,
         mentions: body.mentions,
         medias: body.medias,
         parent_id: body.parent_id,
@@ -43,6 +43,29 @@ class TweetsService {
     const tweet = await databaseService.tweets.findOne({ _id: result.insertedId })
     //console.log(tweet)
     return tweet
+  }
+
+  async increaseView(tweet_id: string, user_id?: string) {
+    const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
+
+    const result = await databaseService.tweets.findOneAndUpdate(
+      { _id: new ObjectId(tweet_id) },
+      {
+        $inc: inc,
+        $currentDate: { updated_at: true }
+      },
+      {
+        returnDocument: 'after',
+        projection: {
+          guest_views: 1,
+          user_views: 1
+        }
+      }
+    )
+    return result as WithId<{
+      guest_views: number
+      user_views: number
+    }>
   }
 }
 const tweetsService = new TweetsService()

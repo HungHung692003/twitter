@@ -198,7 +198,7 @@ export const accessTokenValidatetor = validate(
                 secretOrPublickey: process.env.JWT_SECRET_ACCESS_TOKEN as string
               }) //sử dụng await để đợi một promise hoàn thành và nhận kết quả
               //nếu mà accesstoken đc gửi lên sai hoặc thiếu thì decoded_authorization = await verifyToken({ token: access_token }) vứt lổi ra và không hàm ko hoạt động nữa và validate nhận lổi từ accessTokenValidatetor và xuất lổi ra
-              req.decoded_authorizations = decoded_authorization
+              req.decoded_authorization = decoded_authorization
             } catch (error) {
               throw new ErrorWithStatus({
                 message: capitalize((error as JsonWebTokenError).message),
@@ -314,6 +314,7 @@ export const forgotPasswordValidator = validate(
     ['body']
   )
 )
+
 const forgotPasswordTokenSchema: ParamSchema = {
   trim: true,
   custom: {
@@ -358,6 +359,7 @@ const forgotPasswordTokenSchema: ParamSchema = {
     }
   }
 }
+
 const passwordSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIREA
@@ -437,7 +439,7 @@ export const resetPasswordTokenValidator = validate(
   )
 )
 export const verifiedUserValidator = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  const { verify } = req.decoded_authorizations as TokenPayload
+  const { verify } = req.decoded_authorization as TokenPayload
   if (verify !== UserVerifyStatus.verified) {
     return next(
       new ErrorWithStatus({
@@ -448,6 +450,7 @@ export const verifiedUserValidator = async (req: CustomRequest, res: Response, n
   }
   next()
 }
+
 const nameSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
@@ -464,6 +467,7 @@ const nameSchema: ParamSchema = {
   },
   trim: true
 }
+
 const dateOfBirthSchema: ParamSchema = {
   isISO8601: {
     options: {
@@ -473,6 +477,7 @@ const dateOfBirthSchema: ParamSchema = {
     errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_IS08601
   }
 }
+
 const imageSchema: ParamSchema = {
   trim: true,
   optional: true,
@@ -487,6 +492,7 @@ const imageSchema: ParamSchema = {
     errorMessage: USERS_MESSAGES.IMAGE_URL_LENGTH
   }
 }
+
 export const updateMeValidator = validate(
   checkSchema(
     {
@@ -565,6 +571,7 @@ export const updateMeValidator = validate(
     ['body']
   )
 )
+
 const userIDSchema: ParamSchema = {
   custom: {
     options: async (value: string) => {
@@ -608,16 +615,16 @@ export const changePasswordValidator = validate(
     old_password: {
       ...passwordSchema,
       custom: {
-        options: async (value: string, {req}) => {
-          const {user_id} = (req as CustomRequest).decoded_authorizations as TokenPayload
-          const user = await databaseService.users.findOne({_id: new ObjectId(user_id)})
+        options: async (value: string, { req }) => {
+          const { user_id } = (req as CustomRequest).decoded_authorization as TokenPayload
+          const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
           if (!user) {
             throw new ErrorWithStatus({
               message: USERS_MESSAGES.USERS_NOT_FOUND,
               status: HTTP_STATUS.NOT_FOUND
             })
           }
-          const {password} = user
+          const { password } = user
           const isMatch = hashPassword(value) === password
           if (!isMatch) {
             throw new ErrorWithStatus({
@@ -632,3 +639,12 @@ export const changePasswordValidator = validate(
     confirm_password: confirmPasswordSchema
   })
 )
+
+export const isUserLoggedInValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.headers.authorization) {
+      return middleware(req, res, next)
+    }
+    next()
+  }
+}
