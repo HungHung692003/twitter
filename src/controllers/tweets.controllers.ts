@@ -63,7 +63,7 @@ export const getTweetController = async (req: CustomRequest, res: Response) => {
 // }
 
 export const getTweetChildrenController = async (
-  // req: Request<TweetParam, any, any, TweetQuery> đây là code đúng theo video bài 22 chương 16
+  // req: Request<TweetParam, any, any, TweetQuery> Máy TƯ chạy bình thường, đây là code đúng theo video bài 22 chương 16
   req: CustomRequest<TweetParam>, // code chạy tạm
   res: Response
 ) => {
