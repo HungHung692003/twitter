@@ -1,11 +1,11 @@
 import { TokenPayload } from '../models/requests/Users.Requests'
 import { Response } from 'express'
-import CustomRequest from '../type'
+import Request from '../type'
 import { LIKES_MESSAGES } from '../constants/Messager'
 import likesService from '../services/likes.service'
 import { LikesTweetReqBody } from '../models/requests/Likes.requests'
 
-export const likesTweetController = async (req: CustomRequest<LikesTweetReqBody>, res: Response) => {
+export const likesTweetController = async (req: Request<LikesTweetReqBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const result = await likesService.likesTweet(user_id, req.body.tweet_id)
   return res.json({
@@ -14,7 +14,7 @@ export const likesTweetController = async (req: CustomRequest<LikesTweetReqBody>
   })
 }
 
-export const unlikesTweetController = async (req: CustomRequest<LikesTweetReqBody>, res: Response) => {
+export const unlikesTweetController = async (req: Request<LikesTweetReqBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const result = await likesService.unlikesTweet(user_id, req.params.tweet_id)
   return res.json({

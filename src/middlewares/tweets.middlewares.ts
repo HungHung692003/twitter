@@ -9,7 +9,7 @@ import databaseService from '../services/database.services'
 import HTTP_STATUS from '../constants/httpStatus'
 import { ErrorWithStatus } from '../models/Errors'
 import Tweet from '../models/schemas/Tweet.shema'
-import CustomRequest from '../type'
+import Request from '../type'
 import { NextFunction, Response } from 'express'
 import { wrapRequestHandler } from '../../utils/handlerl'
 
@@ -135,7 +135,7 @@ export const tweetIdValidator = validate(
               .aggregate<Tweet>([
                 {
                   $match: {
-                    _id: new ObjectId('66dbbd2645201f8684b81502')
+                    _id: new ObjectId(value)
                   }
                 },
                 {
@@ -208,7 +208,7 @@ export const tweetIdValidator = validate(
                           input: '$tweet_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 1]
+                            $eq: ['$$item.type', TweetType.Retweet]
                           }
                         }
                       }
@@ -219,7 +219,7 @@ export const tweetIdValidator = validate(
                           input: '$tweet_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 2]
+                            $eq: ['$$item.type', TweetType.Comment]
                           }
                         }
                       }
@@ -230,7 +230,7 @@ export const tweetIdValidator = validate(
                           input: '$tweet_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 3]
+                            $eq: ['$$item.type', TweetType.QuoteTweet]
                           }
                         }
                       }
@@ -247,7 +247,7 @@ export const tweetIdValidator = validate(
                 }
               ])
               .toArray()
-            console.log(tweet)
+            //console.log(tweet)
 
             if (!tweet) {
               throw new ErrorWithStatus({
@@ -255,7 +255,7 @@ export const tweetIdValidator = validate(
                 message: TWEETS_MESSAGES.TWEET_NOT_FOUND
               })
             }
-            ;(req as CustomRequest).tweet = tweet
+            ;(req as Request).tweet = tweet
             return true
           }
         }
@@ -267,7 +267,7 @@ export const tweetIdValidator = validate(
 
 // Muốn sử dụng async await trong handler express thi phải có try catch
 // Nếu không dùng try catch thì phải dùng wrapRequestHandler
-export const audienceValidator = wrapRequestHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+export const audienceValidator = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
   const tweet = req.tweet as Tweet
 
   if (tweet.audience === TweetAudience.TwitterCircle) {
@@ -309,3 +309,42 @@ export const audienceValidator = wrapRequestHandler(async (req: CustomRequest, r
   }
   next()
 })
+
+export const getTweetChildrenValidator = validate(
+  checkSchema(
+    {
+      tweet_type: {
+        isIn: {
+          options: [tweetType],
+          errorMessage: TWEETS_MESSAGES.INVALID_TYPE
+        }
+      },
+
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: async (value, { req }) => {
+            const num = Number(value)
+            if (num > 100 || num < 1) {
+              throw new Error('1 <= limit <= 100')
+            }
+            return true
+          }
+        }
+      },
+      page: {
+        isNumeric: true,
+        custom: {
+          options: async (value, { req }) => {
+            const num = Number(value)
+            if (num < 1) {
+              throw new Error('page >= 1')
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['query']
+  )
+)

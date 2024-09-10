@@ -1,11 +1,11 @@
 import { TokenPayload } from '../models/requests/Users.Requests'
 import { BookmankTweetReqBody } from '../models/requests/Bookmark.requests'
 import { Response } from 'express'
-import CustomRequest from '../type'
+import Request from '../type'
 import bookmarkService from '../services/bookmarks.service'
 import { BOOKMARK_MESSAGES } from '../constants/Messager'
 
-export const bookmarkTweetController = async (req: CustomRequest<BookmankTweetReqBody>, res: Response) => {
+export const bookmarkTweetController = async (req: Request<BookmankTweetReqBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const result = await bookmarkService.bookmarkTweet(user_id, req.body.tweet_id)
   return res.json({
@@ -14,7 +14,7 @@ export const bookmarkTweetController = async (req: CustomRequest<BookmankTweetRe
   })
 }
 
-export const unbookmarkTweetController = async (req: CustomRequest, res: Response) => {
+export const unbookmarkTweetController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const result = await bookmarkService.unbookmarkTweet(user_id, req.params.tweet_id)
   return res.json({
