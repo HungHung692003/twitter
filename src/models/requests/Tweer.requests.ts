@@ -12,12 +12,23 @@ export interface TweetRequestBody {
   medias: Media[]
 }
 
-export interface TweetParam extends ParamsDictionary {
+// gộp từ TweetPanam, TweetQueny, Pagination tạo thành TweetPanamQuenyPagination
+export interface TweetPanamQuenyPagination extends ParamsDictionary, Pagination, Query, TweetPanam, TweetQueny {
   tweet_id: string
-}
-
-export interface TweetQuery extends Query {
   limit: string
   page: string
   tweet_type: string
+}
+
+export interface TweetPanam extends ParamsDictionary {
+  tweet_id: string
+}
+
+export interface TweetQueny extends Pagination, Query {
+  tweet_type: string
+}
+
+export interface Pagination {
+  limit: string
+  page: string
 }

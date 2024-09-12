@@ -3,12 +3,11 @@
     "target": "ES2020",
     "module": "commonjs",
     "strict": true,
-    "moduleResolution": "Node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",// Đường dẫn output cho thư mục build
-    "baseUrl": "./src", // Đường dẫn base cho các import
+    "baseUrl": "../src", // Đường dẫn base cho các import
     "paths": {
       "@/*": ["*"] // Đường dẫn tương đối cho các import (alias)
     }

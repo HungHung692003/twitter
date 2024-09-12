@@ -11,10 +11,21 @@ import cors from 'cors'
 import tweetsRouter from './routes/tweets.router'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
+import databaseService from './services/database.services'
+
+//import '../utils/fake' : vđể thêm mới người dùng và Follower khi mỗi lần chạy lại SERVER
+// chỉ khi nào vần thêm thì "BẬT" import '../utils/fake' lên
+//import '../utils/fake'
 
 config()
-//database
-DatabaseService.connect()
+
+databaseService.connect().then(() => {
+  databaseService.indexUsers()
+  databaseService.indexRefreshTokens()
+  databaseService.indexVideoStatus()
+  databaseService.indexFollowers()
+})
+
 const app = express()
 app.use(cors())
 const port = process.env.PORT || 3000
@@ -50,6 +61,9 @@ app.use('/bookmarks', bookmarksRouter)
 app.use('/likes', likesRouter)
 
 app.use(defaultErrorHandler)
+
+//database
+DatabaseService.connect()
 
 app.listen(port, () => {
   console.log(`Server đang chạy ở: http://localhost:${port}/`)

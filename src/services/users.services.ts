@@ -84,7 +84,7 @@ class UsersService {
         _id: user_id,
         email_verify_token,
         ...payload, //(...payload) để sao chép tất cả các thuộc tính từ payload vào đối tượng User.
-        date_of_birth: new Date(payload.data_of_birth),
+        date_of_birth: new Date(payload.date_of_birth),
         password: hashPassword(payload.password)
       })
     )
@@ -275,7 +275,7 @@ class UsersService {
       await databaseService.followers.insertOne(
         new Followers({
           user_id: new ObjectId(user_id),
-          followed_user_id: new ObjectId(followed_user_id)
+          followed_user_ids: new ObjectId(followed_user_id)
         })
       )
       return {
@@ -312,7 +312,7 @@ class UsersService {
   }
   async changePassword(user_id: string, new_password: string) {
     await databaseService.users.updateOne(
-      {_id: new ObjectId(user_id)},
+      { _id: new ObjectId(user_id) },
       {
         $set: {
           password: hashPassword(new_password),
