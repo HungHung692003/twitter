@@ -477,7 +477,7 @@ class TweetsService {
     await databaseService.tweets.updateMany(
       {
         _id: {
-          $in: ids
+          $in: tweet_ids
         }
       },
       {
