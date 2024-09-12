@@ -9,7 +9,7 @@ class TweetsService {
   async checkAndCreateHashtag(hashtags: string[]) {
     const hashtagDocuments = await Promise.all(
       hashtags.map((hashtag) => {
-        // Tim hashtag trong database, nếu có thi lấy, không thì tạo mới
+        // Tìm hashtag trong database, nếu có thì lấy, không thì tạo mới
         return databaseService.hashtags.findOneAndUpdate(
           { name: hashtag },
           {
@@ -23,12 +23,10 @@ class TweetsService {
       })
     )
     return hashtagDocuments.map((hashtag) => (hashtag as WithId<Hashtag>)._id)
-    //return hashtagDocuments
   }
 
   async createTweet(user_id: string, body: TweetRequestBody) {
     const hashtags = await this.checkAndCreateHashtag(body.hashtags)
-    //console.log(hashtags)
     const result = await databaseService.tweets.insertOne(
       new Tweet({
         audience: body.audience,
@@ -66,7 +64,7 @@ class TweetsService {
     return result as WithId<{
       guest_views: number
       user_views: number
-      updated_at: Date // lấy thời gian updated_at thực
+      updated_at: Date
     }>
   }
 
@@ -166,7 +164,7 @@ class TweetsService {
                 }
               }
             },
-            commet_count: {
+            comment_count: {
               $size: {
                 $filter: {
                   input: '$tweet_children',
@@ -196,14 +194,13 @@ class TweetsService {
           }
         },
         {
-          $skip: limit * (page - 1) // Công Thức Phân Trang
+          $skip: limit * (page - 1)
         },
         {
           $limit: limit
         }
       ])
       .toArray()
-    //console.log(tweets)
 
     const ids = tweets.map((tweet) => tweet._id as ObjectId)
     const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
@@ -220,7 +217,6 @@ class TweetsService {
           $set: { updated_at: date }
         }
       ),
-
       databaseService.tweets.countDocuments({
         parent_id: new ObjectId(tweet_id),
         type: tweet_type
@@ -254,18 +250,16 @@ class TweetsService {
         }
       )
       .toArray()
-    //console.log(followed_user_ids)
-    const ids = followed_user_ids.map((item) => item.followed_user_ids)
-    // Mong muon newfees se lấy luôn cả tweet của người dùng
+
+    const ids = followed_user_ids.flatMap((item) => item.followed_user_ids)
     ids.push(user_id_obj)
+
     const [tweets, total] = await Promise.all([
       databaseService.tweets
         .aggregate([
           {
             $match: {
-              user_id: {
-                $in: ids
-              }
+              user_id: { $in: ids }
             }
           },
           {
@@ -277,33 +271,20 @@ class TweetsService {
             }
           },
           {
-            $unwind: {
-              path: '$user'
-            }
+            $unwind: '$user'
           },
           {
             $match: {
               $or: [
+                { audience: 0 },
                 {
-                  audience: 0
-                },
-                {
-                  $and: [
-                    {
-                      audience: 1
-                    },
-                    {
-                      'user.twitter_circle': {
-                        $in: [user_id_obj]
-                      }
-                    }
-                  ]
+                  $and: [{ audience: 1 }, { 'user.twitter_circle': { $in: [user_id_obj] } }]
                 }
               ]
             }
           },
           {
-            $skip: limit * (page - 1) // Công Thức Phân Trang
+            $skip: limit * (page - 1)
           },
           {
             $limit: limit
@@ -366,31 +347,23 @@ class TweetsService {
           },
           {
             $addFields: {
-              bookmarks: {
-                $size: '$bookmarks'
-              },
-              likes: {
-                $size: '$likes'
-              },
+              bookmarks: { $size: '$bookmarks' },
+              likes: { $size: '$likes' },
               retweet_count: {
                 $size: {
                   $filter: {
                     input: '$tweet_children',
                     as: 'item',
-                    cond: {
-                      $eq: ['$$item.type', TweetType.Retweet]
-                    }
+                    cond: { $eq: ['$$item.type', TweetType.Retweet] }
                   }
                 }
               },
-              commet_count: {
+              comment_count: {
                 $size: {
                   $filter: {
                     input: '$tweet_children',
                     as: 'item',
-                    cond: {
-                      $eq: ['$$item.type', TweetType.Comment]
-                    }
+                    cond: { $eq: ['$$item.type', TweetType.Comment] }
                   }
                 }
               },
@@ -399,9 +372,7 @@ class TweetsService {
                   $filter: {
                     input: '$tweet_children',
                     as: 'item',
-                    cond: {
-                      $eq: ['$$item.type', TweetType.QuoteTweet]
-                    }
+                    cond: { $eq: ['$$item.type', TweetType.QuoteTweet] }
                   }
                 }
               }
@@ -426,9 +397,7 @@ class TweetsService {
         .aggregate([
           {
             $match: {
-              user_id: {
-                $in: ids
-              }
+              user_id: { $in: ids }
             }
           },
           {
@@ -440,27 +409,14 @@ class TweetsService {
             }
           },
           {
-            $unwind: {
-              path: '$user'
-            }
+            $unwind: '$user'
           },
           {
             $match: {
               $or: [
+                { audience: 0 },
                 {
-                  audience: 0
-                },
-                {
-                  $and: [
-                    {
-                      audience: 1
-                    },
-                    {
-                      'user.twitter_circle': {
-                        $in: [user_id_obj]
-                      }
-                    }
-                  ]
+                  $and: [{ audience: 1 }, { 'user.twitter_circle': { $in: [user_id_obj] } }]
                 }
               ]
             }
@@ -472,27 +428,7 @@ class TweetsService {
         .toArray()
     ])
 
-    const tweet_ids = tweets.map((tweet) => tweet._id as ObjectId)
-    const date = new Date()
-    await databaseService.tweets.updateMany(
-      {
-        _id: {
-          $in: tweet_ids
-        }
-      },
-      {
-        $inc: { guest_views: 1 },
-        $set: { updated_at: date }
-      }
-    )
-
-    tweets.forEach((tweet) => {
-      tweet.updated_at = date
-      tweet.user_views += 1
-    })
-    // Kiểm tra nếu total tồn tại và có phần tử
-    const totalCount = total.length > 0 ? total[0].total : 0
-    return { tweets, total: totalCount }
+    return { tweets, total: total[0]?.total ?? 0 }
   }
 }
 
