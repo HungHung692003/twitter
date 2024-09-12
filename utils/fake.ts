@@ -10,11 +10,11 @@ import Followers from '../src/models/schemas/Follower.schema'
 import tweetsService from '../src/services/tweets.services'
 
 // Mật khẩu cho các fake user
-const PASSWORD = 'Tu123456@@!'
+const PASSWORD = 'Tu123456@@'
 // ID của tài khoản của mình, dùng để follow người khác
 const MYID = new ObjectId('66e281119a857456cc98ffba')
 // Số lượng user được tạo, mỗi user sẽ mặc định tweet 2 cái
-const USER_COUNT = 20
+const USER_COUNT = 10
 
 const createRandomUser = (): RegisterReqBody => ({
   name: faker.internet.displayName(),

@@ -295,9 +295,10 @@ export const audienceValidator = wrapRequestHandler(async (req: Request, res: Re
     const { user_id } = req.decoded_authorization
 
     // đoạn này được sửa: Thêm kiểm tra xem `twitter_circle` đã được xác định chưa và có phải là một mảng không
-    const isInTwitterCircle =
-      Array.isArray(author.twitter_circle) &&
-      author.twitter_circle.some((user_circle_id) => user_circle_id.equals(user_id))
+    // const isInTwitterCircle =
+    //   Array.isArray(author.twitter_circle) &&
+    //   author.twitter_circle.some((user_circle_id) => user_circle_id.equals(user_id))
+    const isInTwitterCircle = author.twitter_circle.some((user_cincle_id) => user_cincle_id.equals(user_id))
 
     // Nếu bạn không phải là tác giả và không nằm trong twitter circle thì quăng lỗi
     if (!author._id.equals(user_id) && !isInTwitterCircle) {

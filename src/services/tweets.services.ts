@@ -42,7 +42,6 @@ class TweetsService {
       })
     )
     const tweet = await databaseService.tweets.findOne({ _id: result.insertedId })
-    //console.log(tweet)
     return tweet
   }
 
@@ -255,6 +254,7 @@ class TweetsService {
         }
       )
       .toArray()
+    //console.log(followed_user_ids)
     const ids = followed_user_ids.map((item) => item.followed_user_ids)
     // Mong muon newfees se lấy luôn cả tweet của người dùng
     ids.push(user_id_obj)
@@ -271,7 +271,7 @@ class TweetsService {
           {
             $lookup: {
               from: 'users',
-              localField: 'users_id',
+              localField: 'user_id',
               foreignField: '_id',
               as: 'user'
             }
@@ -434,7 +434,7 @@ class TweetsService {
           {
             $lookup: {
               from: 'users',
-              localField: 'users_id',
+              localField: 'user_id',
               foreignField: '_id',
               as: 'user'
             }
@@ -490,7 +490,6 @@ class TweetsService {
       tweet.updated_at = date
       tweet.user_views += 1
     })
-
     // Kiểm tra nếu total tồn tại và có phần tử
     const totalCount = total.length > 0 ? total[0].total : 0
     return { tweets, total: totalCount }
