@@ -12,6 +12,7 @@ import tweetsRouter from './routes/tweets.router'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
 import databaseService from './services/database.services'
+import searchRouter from './routes/search.routes'
 
 //import '../utils/fake' : vđể thêm mới người dùng và Follower khi mỗi lần chạy lại SERVER
 // chỉ khi nào vần thêm thì "BẬT" import '../utils/fake' lên
@@ -24,6 +25,7 @@ databaseService.connect().then(() => {
   databaseService.indexRefreshTokens()
   databaseService.indexVideoStatus()
   databaseService.indexFollowers()
+  databaseService.indexTweets()
 })
 
 const app = express()
@@ -59,6 +61,9 @@ app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarksRouter)
 //Likes
 app.use('/likes', likesRouter)
+
+//Search
+app.use('/search', searchRouter)
 
 app.use(defaultErrorHandler)
 

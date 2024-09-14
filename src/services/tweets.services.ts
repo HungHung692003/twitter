@@ -252,8 +252,8 @@ class TweetsService {
       .toArray()
 
     const ids = followed_user_ids.flatMap((item) => item.followed_user_ids)
-    ids.push(user_id_obj)
 
+    ids.push(user_id_obj)
     const [tweets, total] = await Promise.all([
       databaseService.tweets
         .aggregate([
@@ -428,7 +428,26 @@ class TweetsService {
         .toArray()
     ])
 
-    return { tweets, total: total[0]?.total ?? 0 }
+    const tweet_ids = tweets.map((tweet) => tweet._id as ObjectId)
+    const inc = user_id ? { user_views: 1 } : { guest_views: 1 }
+    const date = new Date()
+    await databaseService.tweets.updateMany(
+      {
+        _id: {
+          $in: tweet_ids
+        }
+      },
+      {
+        $inc: inc,
+        $set: { updated_at: date }
+      }
+    ),
+      tweets.forEach((tweet) => {
+        tweet.updated_at = date
+        tweet.user_views += 1
+      })
+
+    return { tweets, total: total[0]?.total || 0 }
   }
 }
 

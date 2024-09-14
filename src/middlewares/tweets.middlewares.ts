@@ -12,6 +12,7 @@ import Tweet from '../models/schemas/Tweet.shema'
 import Request from '../type'
 import { NextFunction, Response } from 'express'
 import { wrapRequestHandler } from '../../utils/handlerl'
+import CustomRequest from '../type'
 
 const tweetType = numberEnumToArray(TweetType)
 const tweetAudiences = numberEnumToArray(TweetAudience)
@@ -255,7 +256,7 @@ export const tweetIdValidator = validate(
                 message: TWEETS_MESSAGES.TWEET_NOT_FOUND
               })
             }
-            ;(req as Request).tweet = tweet
+            ;(req as CustomRequest).tweet = tweet
             return true
           }
         }
