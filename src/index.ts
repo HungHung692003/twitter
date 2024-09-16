@@ -1,5 +1,5 @@
 import { initFolder } from './../utils/file'
-import DatabaseService from './services/database.services'
+//import DatabaseService from './services/database.services'
 import UserRouter from './routes/users.routes'
 import express from 'express'
 import { defaultErrorHandler } from './middlewares/ErrorHandler'
@@ -68,7 +68,7 @@ app.use('/search', searchRouter)
 app.use(defaultErrorHandler)
 
 //database
-DatabaseService.connect()
+//DatabaseService.connect()
 
 app.listen(port, () => {
   console.log(`Server đang chạy ở: http://localhost:${port}/`)

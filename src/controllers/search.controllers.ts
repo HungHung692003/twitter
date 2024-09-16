@@ -2,7 +2,7 @@ import { Response } from 'express'
 import { SearchQuery } from '../models/requests/Search.requests'
 import CustomRequest from '../type'
 import searchService from '../services/search.service'
-import { MediaTypeQuery } from '../constants/enums'
+import { MediaTypeQuery, PeopleFollow } from '../constants/enums'
 
 export const searchController = async (req: CustomRequest<SearchQuery>, res: Response) => {
   const limit = Number(req.query.limit)
@@ -14,7 +14,7 @@ export const searchController = async (req: CustomRequest<SearchQuery>, res: Res
     page,
     content: req.query.content as string,
     media_type: req.query.media_type as MediaTypeQuery,
-    people_follow: req.query.people_follow as string,
+    people_follow: req.query.people_follow as PeopleFollow,
     user_id: req.decoded_authorization?.user_id as string
   })
   res.json({
