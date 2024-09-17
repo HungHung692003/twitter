@@ -1,15 +1,11 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { Link } from 'react-router-dom'
+import reactLogo from './assets/react.svg';
+import viteLogo from '/vite.svg';
+import './App.css';
+import { Link } from 'react-router-dom';
 import 'vidstack/styles/defaults.css';
 import 'vidstack/styles/community-skin/video.css';
-//import { MediaCommunitySkin, MediaOutlet, MediaPlayer, MediaPoster } from '@vidstack/react';
 
-
-
-
-console.log(import.meta.env)
+// Xóa dòng import { access } from 'fs'; vì fs không thể sử dụng trên client-side
 
 const getGoogleAuthUrl = () => {
   const { VITE_GOOGLE_CLIENT_ID, VITE_GOOGLE_REDIRECT_URI } = import.meta.env;
@@ -28,9 +24,11 @@ const getGoogleAuthUrl = () => {
   return `${url}?${queryString}`;
 };
 
-const googleAuthUrl = getGoogleAuthUrl()
+const googleAuthUrl = getGoogleAuthUrl();
 
 export default function Home() {
+  const profile = JSON.parse(localStorage.getItem('profile')) || {};
+
   return (
     <>
       <div>
@@ -49,15 +47,12 @@ export default function Home() {
           type="video/mp4"
         />
       </video>
-      
-      
-    /{/* 
+
+      {/* 
       <h2>Video HLS Streaming</h2>
       <MediaPlayer
         title="Sprite Fight"
         src="http://localhost:3000/static/video/zQg2-2YgxSc41tVNzEsxK/master.m3u8"
-        // poster="https://image.mux.com/VZtzUzGRv020hRnZCxcNg490ilvolTqdnFLEqBsTwaxU/thumbnail.webp?time=268&width=980"
-        // thumbnails="https://media-files.vidstack.io/sprite-fight/thumbnails.vtt"
         aspectRatio={16 / 9}
         crossorigin=""
       >
@@ -80,10 +75,11 @@ export default function Home() {
         <MediaCommunitySkin />
       </MediaPlayer> */}
 
-
       <h1>Google OAuth 2.0</h1>
-      <p className="read-the-docs">
-        <Link to={googleAuthUrl}>Login With Google</Link>
+      <p className='read-the-docs'>
+        <button>
+          LOGIN Email: <strong>{profile.email}</strong>
+        </button>
       </p>
     </>
   );

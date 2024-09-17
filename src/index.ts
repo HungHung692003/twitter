@@ -1,30 +1,24 @@
-import { initFolder } from './../utils/file'
-//import DatabaseService from './services/database.services'
-import UserRouter from './routes/users.routes'
 import express from 'express'
-import { defaultErrorHandler } from './middlewares/ErrorHandler'
-import mediasRouter from './routes/medias.routes'
 import { config } from 'dotenv'
-import staticRouter from './routes/static.routes'
-import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
-import tweetsRouter from './routes/tweets.router'
-import bookmarksRouter from './routes/bookmarks.routes'
-import likesRouter from './routes/likes.routes'
-import databaseService from './services/database.services'
-import searchRouter from './routes/search.routes'
-
-// import cho Server
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
 
-//import '../utils/fake' : vđể thêm mới người dùng và Follower khi mỗi lần chạy lại SERVER
-// chỉ khi nào vần thêm thì "BẬT" import '../utils/fake' lên
-//import '../utils/fake'
+import { initFolder } from './../utils/file'
+import databaseService from './services/database.services'
+import UserRouter from './routes/users.routes'
+import mediasRouter from './routes/medias.routes'
+import staticRouter from './routes/static.routes'
+import tweetsRouter from './routes/tweets.router'
+import bookmarksRouter from './routes/bookmarks.routes'
+import likesRouter from './routes/likes.routes'
+import searchRouter from './routes/search.routes'
+import { defaultErrorHandler } from './middlewares/ErrorHandler'
+import { UPLOAD_VIDEO_DIR } from './constants/dir'
 
 config()
 
-//database
+// Kết nối database và khởi tạo các chỉ số
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
@@ -34,67 +28,62 @@ databaseService.connect().then(() => {
 })
 
 const app = express()
-
-const httpServer = createServer()
-app.use(cors())
 const port = process.env.PORT || 3000
+const httpServer = createServer(app) // Gán app vào httpServer
 
-initFolder() // nếu trong server chưa có file " uploads " chỉ cần chạy lại server thì tạo lại 1 file mới
+// Khởi tạo folder uploads nếu chưa tồn tại
+initFolder()
 
+// CORS configuration
 app.use(
   cors({
-    origin: 'http://localhost:3001', // Địa chỉ của ứng dụng frontend
-    credentials: true // Cho phép gửi cookie cùng với request
+    origin: 'http://localhost:3001', // Địa chỉ của frontend
+    credentials: true // Cho phép gửi cookie
   })
 )
 
+// Middleware để parse JSON
 app.use(express.json())
 
-// Middleware để phục vụ các file tĩnh
-//app.use(express.static(path.join(__dirname, 'build')))
-app.use(express.json())
-
+// Đăng ký các route API
 app.use('/api', UserRouter)
-
 app.use('/medias', mediasRouter)
-
-//router ảnh
 app.use('/static', staticRouter)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
-
-//Tweets
 app.use('/tweets', tweetsRouter)
-//Bookmarks
 app.use('/bookmarks', bookmarksRouter)
-//Likes
 app.use('/likes', likesRouter)
-
-//Search
 app.use('/search', searchRouter)
 
+// Xử lý lỗi mặc định
 app.use(defaultErrorHandler)
 
+// Socket.io server với CORS configuration
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:3001' //localhost Client
+    origin: 'http://localhost:3001' // Địa chỉ của client
   }
 })
 
 io.on('connection', (socket: Socket) => {
-  console.log(`người dùng ${socket.id} ĐÃ kết nối`)
-  socket.on('disconnect', () => {
-    console.log(`người dùng ${socket.id} NGẮT kết nối`)
+  console.log(`Người dùng ${socket.id} đã kết nối`)
+
+  // Lắng nghe sự kiện từ client
+  socket.on('client', (data) => {
+    console.log(data)
   })
-  //socket.on: Lắng nghe sự kiện của client.
-  socket.on('client', (agr) => {
-    console.log(agr)
-  })
-  //socket.emit: Gửi một sự kiện server đến client
+
+  // Gửi sự kiện đến client
   socket.emit('server', {
     message: `Server kết nối thành công Client có ID: ${socket.id}`
   })
+
+  socket.on('disconnect', () => {
+    console.log(`Người dùng ${socket.id} đã ngắt kết nối`)
+  })
 })
 
+// Khởi chạy server
 httpServer.listen(port, () => {
   console.log(`Server đang chạy ở: http://localhost:${port}/`)
 })
