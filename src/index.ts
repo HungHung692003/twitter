@@ -14,12 +14,17 @@ import likesRouter from './routes/likes.routes'
 import databaseService from './services/database.services'
 import searchRouter from './routes/search.routes'
 
+// import cho Server
+import { createServer } from 'http'
+import { Server, Socket } from 'socket.io'
+
 //import '../utils/fake' : vđể thêm mới người dùng và Follower khi mỗi lần chạy lại SERVER
 // chỉ khi nào vần thêm thì "BẬT" import '../utils/fake' lên
 //import '../utils/fake'
 
 config()
 
+//database
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
@@ -29,6 +34,8 @@ databaseService.connect().then(() => {
 })
 
 const app = express()
+
+const httpServer = createServer()
 app.use(cors())
 const port = process.env.PORT || 3000
 
@@ -67,9 +74,27 @@ app.use('/search', searchRouter)
 
 app.use(defaultErrorHandler)
 
-//database
-//DatabaseService.connect()
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3001' //localhost Client
+  }
+})
 
-app.listen(port, () => {
+io.on('connection', (socket: Socket) => {
+  console.log(`người dùng ${socket.id} ĐÃ kết nối`)
+  socket.on('disconnect', () => {
+    console.log(`người dùng ${socket.id} NGẮT kết nối`)
+  })
+  //socket.on: Lắng nghe sự kiện của client.
+  socket.on('client', (agr) => {
+    console.log(agr)
+  })
+  //socket.emit: Gửi một sự kiện server đến client
+  socket.emit('server', {
+    message: `Server kết nối thành công Client có ID: ${socket.id}`
+  })
+})
+
+httpServer.listen(port, () => {
   console.log(`Server đang chạy ở: http://localhost:${port}/`)
 })
