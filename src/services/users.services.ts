@@ -242,6 +242,21 @@ class UsersService {
     return user
   }
 
+  // Service để lấy thông tin người dùng từ _id
+  async getProfile(_id: string) {
+    const user = await databaseService.users.findOne(
+      { _id: new ObjectId(_id) },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0
+        }
+      }
+    )
+    return user
+  }
+
   async updateMe(user_id: string, payload: UpdateMeReqBody) {
     const _payload = payload.date_of_birth ? { ...payload, date_of_birth: new Date(payload.date_of_birth) } : payload
     const user = await databaseService.users.findOneAndUpdate(

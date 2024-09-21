@@ -1,33 +1,29 @@
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
-import { Link } from 'react-router-dom';
+//import { Link } from 'react-router-dom';
 import 'vidstack/styles/defaults.css';
 import 'vidstack/styles/community-skin/video.css';
 
-// Xóa dòng import { access } from 'fs'; vì fs không thể sử dụng trên client-side
-
+// Hàm để tạo URL đăng nhập Google OAuth 2.0
 const getGoogleAuthUrl = () => {
   const { VITE_GOOGLE_CLIENT_ID, VITE_GOOGLE_REDIRECT_URI } = import.meta.env;
   const url = 'https://accounts.google.com/o/oauth2/v2/auth';
-  const query = {
+  const queryParams = new URLSearchParams({
     client_id: VITE_GOOGLE_CLIENT_ID,
     redirect_uri: VITE_GOOGLE_REDIRECT_URI,
     response_type: 'code',
-    scope: [
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email',
-    ].join(' '),
+    scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
     prompt: 'consent',
-  };
-  const queryString = new URLSearchParams(query).toString();
-  return `${url}?${queryString}`;
+  }).toString();
+  return `${url}?${queryParams}`;
 };
 
 const googleAuthUrl = getGoogleAuthUrl();
 
 export default function Home() {
-  const profile = JSON.parse(localStorage.getItem('profile')) || {};
+  const storedProfile = localStorage.getItem('profile');
+  const profile = storedProfile ? JSON.parse(storedProfile) : {};
 
   return (
     <>
@@ -46,8 +42,10 @@ export default function Home() {
           src="http://localhost:3000/static/video/qzWSyBZ8lqgzT7mI0yGFk.mp4"
           type="video/mp4"
         />
+        Your browser does not support the video tag.
       </video>
 
+      {/* Uncomment this block if you want to support HLS streaming */}
       {/* 
       <h2>Video HLS Streaming</h2>
       <MediaPlayer
@@ -57,7 +55,7 @@ export default function Home() {
         crossorigin=""
       >
         <MediaOutlet>
-          <MediaPoster alt="Girl walks into sprite gnomes around her friend on a campfire in danger!" />
+          <MediaPoster alt="Sprite Fight Scene" />
           <track
             src="https://media-files.vidstack.io/sprite-fight/subs/english.vtt"
             label="English"
@@ -73,14 +71,21 @@ export default function Home() {
           />
         </MediaOutlet>
         <MediaCommunitySkin />
-      </MediaPlayer> */}
+      </MediaPlayer> 
+      */}
 
       <h1>Google OAuth 2.0</h1>
-      <p className='read-the-docs'>
-        <button>
-          LOGIN Email: <strong>{profile.email}</strong>
-        </button>
-      </p>
+      {profile.email ? (
+        <p className="read-the-docs">
+          Logged in as: <strong>{profile.email}</strong>
+        </p>
+      ) : (
+        <p className="read-the-docs">
+          <a href={googleAuthUrl}>
+            <button>Login with Google</button>
+          </a>
+        </p>
+      )}
     </>
-  );
+  )
 }

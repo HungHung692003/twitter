@@ -6,6 +6,7 @@ import {
   followController,
   forgotPasswordController,
   getMeController,
+  getProfileController,
   getUsersForFollow,
   loginController,
   logoutController,
@@ -60,6 +61,9 @@ UserRouter.post(
 UserRouter.post('/reset-password', resetPasswordTokenValidator, wrapRequestHandler(resetPasswordController))
 
 UserRouter.get('/me', accessTokenValidatetor, wrapRequestHandler(getMeController))
+
+// Định nghĩa route lấy profile qua _id
+UserRouter.get('/profile/:_id', wrapRequestHandler(getProfileController))
 
 UserRouter.patch(
   '/me',

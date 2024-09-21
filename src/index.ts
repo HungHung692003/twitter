@@ -15,6 +15,9 @@ import likesRouter from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
 import { defaultErrorHandler } from './middlewares/ErrorHandler'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
+import Conversation from './models/schemas/Conversations.schema'
+import conversationsRouter from './routes/conversations.routes'
+import { ObjectId } from 'mongodb'
 
 config()
 
@@ -54,6 +57,7 @@ app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarksRouter)
 app.use('/likes', likesRouter)
 app.use('/search', searchRouter)
+app.use('/conversations', conversationsRouter)
 
 // Xử lý lỗi mặc định
 app.use(defaultErrorHandler)
@@ -80,20 +84,33 @@ io.on('connection', (socket: Socket) => {
     socket_id: socket.id
   }
 
-  console.log(users)
+  socket.on('send_message', async (data) => {
+    const { sender_id, receiver_id, content } = data.payload
+    const receiver_socket_id = users[receiver_id]?.socket_id
+    if (!receiver_socket_id) {
+      return
+    }
 
-  socket.on('private message', (data) => {
-    const receiver_socket_id = users[data.to].socket_id
-    socket.to(receiver_socket_id).emit('receive private message', {
-      content: data.content,
-      from: user_id
+    const conversation = new Conversation({
+      sender_id: new ObjectId(sender_id),
+      receiver_id: new ObjectId(receiver_id),
+      content
+    })
+
+    // Lưu tin nhắn vào MongoDB
+    const result = await databaseService.conversations.insertOne(conversation)
+
+    conversation._id = result.insertedId || new ObjectId()
+
+    socket.to(receiver_socket_id).emit('receive_message', {
+      payload: conversation
     })
   })
 
   socket.on('disconnect', () => {
     delete users[user_id]
     console.log(`Người dùng ${socket.id} đã ngắt kết nối`)
-    console.log(users)
+    //console.log(users)
   })
 })
 

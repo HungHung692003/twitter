@@ -8,6 +8,7 @@ import Tweet from '../models/schemas/Tweet.shema'
 import Hashtag from '../models/schemas/Hashtag.schema'
 import Bookmark from '../models/schemas/Bookmark.schema'
 import Like from '../models/schemas/Like.schema'
+import Conversation from '../models/schemas/Conversations.schema'
 
 config() // config(): Chức năng này đọc tệp .env và làm cho nội dung của nó có sẵn thông qua process.env
 
@@ -32,36 +33,6 @@ class DatabaseService {
       console.log('Erorr', error)
       throw error
     }
-  }
-  get users(): Collection<User> {
-    return this.db.collection(process.env.DB_USERS_COLLECTION as string)
-  }
-
-  get tweets(): Collection<Tweet> {
-    return this.db.collection(process.env.DB_TWEETS_COLLECTION as string)
-  }
-
-  //Nếu collection với tên chỉ định bởi process.env.DB_USERS_COLLECTION đã tồn tại trong cơ sở dữ liệu, thì phương thức này sẽ trả về đối tượng Collection<User> để bạn có thể thao tác với collection đó (DB_REFESH_TOKENS_COLLECTION) trên database.
-  //Nếu collection chưa tồn tại, MongoDB sẽ tự động tạo mới collection đó khi bạn thực hiện thao tác ghi
-  get refeshToken(): Collection<RefreshToken> {
-    return this.db.collection(process.env.DB_REFESH_TOKENS_COLLECTION as string)
-  }
-  get followers(): Collection<Followers> {
-    return this.db.collection(process.env.DB_FOLLOWERS_CQLLECTION as string)
-  }
-
-  get videoStatus(): Collection<VideoStatus> {
-    return this.db.collection(process.env.DB_VIDEO_STATUS_COLLECTION as string)
-  }
-
-  get hashtags(): Collection<Hashtag> {
-    return this.db.collection(process.env.DB_HASHTAGS_COLLECTION as string)
-  }
-  get bookmarks(): Collection<Bookmark> {
-    return this.db.collection(process.env.DB_BOOKMARKS_COLLECTION as string)
-  }
-  get likes(): Collection<Like> {
-    return this.db.collection(process.env.DB_LIKES_COLLECTION as string)
   }
 
   async indexUsers() {
@@ -103,6 +74,41 @@ class DatabaseService {
     if (!exists) {
       this.tweets.createIndex({ content: 'text' }, { default_language: 'none' })
     }
+  }
+
+  get users(): Collection<User> {
+    return this.db.collection(process.env.DB_USERS_COLLECTION as string)
+  }
+
+  get tweets(): Collection<Tweet> {
+    return this.db.collection(process.env.DB_TWEETS_COLLECTION as string)
+  }
+
+  //Nếu collection với tên chỉ định bởi process.env.DB_USERS_COLLECTION đã tồn tại trong cơ sở dữ liệu, thì phương thức này sẽ trả về đối tượng Collection<User> để bạn có thể thao tác với collection đó (DB_REFESH_TOKENS_COLLECTION) trên database.
+  //Nếu collection chưa tồn tại, MongoDB sẽ tự động tạo mới collection đó khi bạn thực hiện thao tác ghi
+  get refeshToken(): Collection<RefreshToken> {
+    return this.db.collection(process.env.DB_REFESH_TOKENS_COLLECTION as string)
+  }
+  get followers(): Collection<Followers> {
+    return this.db.collection(process.env.DB_FOLLOWERS_CQLLECTION as string)
+  }
+
+  get videoStatus(): Collection<VideoStatus> {
+    return this.db.collection(process.env.DB_VIDEO_STATUS_COLLECTION as string)
+  }
+
+  get hashtags(): Collection<Hashtag> {
+    return this.db.collection(process.env.DB_HASHTAGS_COLLECTION as string)
+  }
+  get bookmarks(): Collection<Bookmark> {
+    return this.db.collection(process.env.DB_BOOKMARKS_COLLECTION as string)
+  }
+  get likes(): Collection<Like> {
+    return this.db.collection(process.env.DB_LIKES_COLLECTION as string)
+  }
+
+  get conversations(): Collection<Conversation> {
+    return this.db.collection(process.env.DB_VIDEO_STATUS_CONVERSATION as string)
   }
 }
 
