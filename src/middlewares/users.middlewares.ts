@@ -15,6 +15,7 @@ import CustomRequest from '../type'
 import { TokenPayload } from '../models/requests/Users.Requests'
 import { UserVerifyStatus } from '../constants/enums'
 import { REGEX_USERNAME } from '../constants/regex'
+import { verifyAccessToken } from '../../utils/commons'
 
 export const LoginValidator = validate(
   checkSchema({
@@ -186,26 +187,7 @@ export const accessTokenValidatetor = validate(
         custom: {
           options: async (value: string, { req }) => {
             const access_token = value.split(' ')[1]
-            if (!access_token) {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
-            try {
-              const decoded_authorization = await verifyToken({
-                token: access_token,
-                secretOrPublickey: process.env.JWT_SECRET_ACCESS_TOKEN as string
-              }) //sử dụng await để đợi một promise hoàn thành và nhận kết quả
-              //nếu mà accesstoken đc gửi lên sai hoặc thiếu thì decoded_authorization = await verifyToken({ token: access_token }) vứt lổi ra và không hàm ko hoạt động nữa và validate nhận lổi từ accessTokenValidatetor và xuất lổi ra
-              req.decoded_authorization = decoded_authorization
-            } catch (error) {
-              throw new ErrorWithStatus({
-                message: capitalize((error as JsonWebTokenError).message),
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
-            return true
+            return await verifyAccessToken(access_token, req as Request)
           }
         }
       }
@@ -440,7 +422,7 @@ export const resetPasswordTokenValidator = validate(
 )
 export const verifiedUserValidator = async (req: CustomRequest, res: Response, next: NextFunction) => {
   const { verify } = req.decoded_authorization as TokenPayload
-  if (verify !== UserVerifyStatus.verified) {
+  if (verify !== UserVerifyStatus.Verified) {
     return next(
       new ErrorWithStatus({
         message: USERS_MESSAGES.USER_NOT_VERIFIED,

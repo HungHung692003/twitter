@@ -53,7 +53,7 @@ const insertMultipleUsers = async (users: RegisterReqBody[]): Promise<ObjectId[]
             username: `user${user_id.toString()}`,
             password: hashPassword(user.password),
             date_of_birth: new Date(user.date_of_birth),
-            verify: UserVerifyStatus.verified
+            verify: UserVerifyStatus.Verified
           })
         )
         .then(() => user_id)

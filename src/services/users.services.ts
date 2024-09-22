@@ -166,7 +166,7 @@ class UsersService {
       {
         $set: {
           email_verify_token: '',
-          verify: UserVerifyStatus.verified,
+          verify: UserVerifyStatus.Verified,
           updated_at: '$$NOW'
         }
       }

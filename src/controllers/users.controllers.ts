@@ -109,7 +109,7 @@ export const resendverifyEmailController = async (req: CustomRequest, res: Respo
       message: USERS_MESSAGES.USERS_NOT_FOUND
     })
   }
-  if (user.verify === UserVerifyStatus.verified) {
+  if (user.verify === UserVerifyStatus.Verified) {
     return res.json({
       message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE
     })

@@ -8,6 +8,7 @@ interface ConversationType {
   created_at?: Date
   updated_at?: Date
 }
+
 export default class Conversation {
   _id: ObjectId
   sender_id: ObjectId

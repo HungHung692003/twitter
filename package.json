@@ -53,6 +53,7 @@
     "module-alias": "^2.2.3",
     "mongodb": "^6.8.0",
     "nanoid": "^3.3.4",
+    "react-infinite-scroll-component": "^6.1.0",
     "sharp": "^0.33.5",
     "slash": "^5.1.0",
     "socket.io": "^4.7.5",
