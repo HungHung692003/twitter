@@ -42,7 +42,7 @@ const username = [
 
     socket.on('disconnect', (reason) => {
       //lỗi mất kết nối dùng để làm thông cho người dùng
-      console.warn(reason)
+      console.log(reason)
     })
 
     return () => {
