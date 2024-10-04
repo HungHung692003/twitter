@@ -12,6 +12,9 @@ import { isProduction } from '../constants/config'
 import { config } from 'dotenv'
 import databaseService from './database.services'
 import VideoStatus from './../models/schemas/VideoStatus.schema'
+import ImageStatus from '../models/schemas/ImageStatus.schema'
+import CustomRequest from '../type'
+import { ObjectId } from 'mongodb'
 
 config()
 
@@ -107,26 +110,26 @@ class Queue {
 const queue = new Queue()
 
 class MediasService {
-  async uploadImage(req: Request) {
-    const files = await handleUploadImage(req)
-    const result: Media[] = await Promise.all(
-      files.map(async (file) => {
-        const newName = getNameFromFullname(file.newFilename)
-        const newPath = path.resolve(UPLOAD_IMAGE_DIR, `${newName}.jpg`)
-        await sharp(file.filepath) // Tạo đối tượng sharp với filepath
-          .jpeg() // Cấu hình thành định dạng JPEG
-          .toFile(newPath) // Lưu kết quả thành file 'test.jpg'
-        fs.unlinkSync(file.filepath) //xóa ảnh đã được Upload trên khổi file uploads/temp (bộ nhớ tạm)
-        return {
-          url: isProduction
-            ? `${process.env.HOST}/static/image/${newName}.jpg`
-            : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`,
-          type: MediaType.Image
-        }
-      })
-    )
-    return result
-  }
+  // async uploadImage(req: Request) {
+  //   const files = await handleUploadImage(req)
+  //   const result: Media[] = await Promise.all(
+  //     files.map(async (file) => {
+  //       const newName = getNameFromFullname(file.newFilename)
+  //       const newPath = path.resolve(UPLOAD_IMAGE_DIR, `${newName}.jpg`)
+  //       await sharp(file.filepath) // Tạo đối tượng sharp với filepath
+  //         .jpeg() // Cấu hình thành định dạng JPEG
+  //         .toFile(newPath) // Lưu kết quả thành file 'test.jpg'
+  //       fs.unlinkSync(file.filepath) //xóa ảnh đã được Upload trên khổi file uploads/temp (bộ nhớ tạm)
+  //       return {
+  //         url: isProduction
+  //           ? `${process.env.HOST}/static/image/${newName}.jpg`
+  //           : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`,
+  //         type: MediaType.Image
+  //       }
+  //     })
+  //   )
+  //   return result
+  // }
 
   async uploadVideo(req: Request) {
     const files = await handleUploadVideo(req)
@@ -161,6 +164,47 @@ class MediasService {
   async getVideoStatus(id: string) {
     const data = await databaseService.videoStatus.findOne({ name: id })
     return data
+  }
+
+  async uploadImageVip(req: CustomRequest, user_id: string) {
+    const _id = new ObjectId(user_id)
+    const uploadSessionId = new ObjectId() // Tạo một _id duy nhất cho nhóm ảnh này
+    const files = await handleUploadImage(req)
+
+    const result: Media[] = await Promise.all(
+      files.map(async (file) => {
+        const newName = getNameFromFullname(file.newFilename)
+        const newPath = path.resolve(UPLOAD_IMAGE_DIR, `${newName}.jpg`)
+
+        // Xử lý ảnh với sharp
+        await sharp(file.filepath).jpeg().toFile(newPath)
+
+        // Xóa ảnh tạm thời sau khi xử lý
+        fs.unlinkSync(file.filepath)
+
+        // Lưu trạng thái upload vào database
+        await databaseService.imageStatus.insertOne(
+          new ImageStatus({
+            name: `http://localhost:3000/static/image/${newName}.jpg`,
+            user_id: _id, // Cung cấp user_id
+            upload_session_id: uploadSessionId, // Cung cấp _id cho nhóm ảnh
+            status: EncodingStatus.Success // Bạn có thể điều chỉnh trạng thái nếu cần
+          })
+        )
+        return {
+          url: isProduction
+            ? `${process.env.HOST}/static/image/${newName}.jpg`
+            : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`,
+          type: MediaType.Image
+        }
+      })
+    )
+    return result
+  }
+
+  async getImage(upload_session_id: string) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(upload_session_id) })
+    return user
   }
 }
 

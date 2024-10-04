@@ -4,6 +4,7 @@ import fs from 'fs'
 import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '../src/constants/dir'
 import path from 'path'
 import nanoid from 'nanoid'
+import CustomRequest from '../src/type'
 
 // nếu trong server chưa có file " uploads " chỉ cần chạy lại server thì tạo lại 1 file mới
 export const initFolder = () => {
@@ -16,7 +17,7 @@ export const initFolder = () => {
   })
 }
 
-export const handleUploadImage = async (req: Request) => {
+export const handleUploadImage = async (req: CustomRequest) => {
   //const formidable = (await import('formidable')).default
   const form = formidable({
     uploadDir: UPLOAD_IMAGE_TEMP_DIR,

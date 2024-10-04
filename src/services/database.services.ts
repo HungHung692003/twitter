@@ -9,6 +9,7 @@ import Hashtag from '../models/schemas/Hashtag.schema'
 import Bookmark from '../models/schemas/Bookmark.schema'
 import Like from '../models/schemas/Like.schema'
 import Conversation from '../models/schemas/Conversations.schema'
+import ImageStatus from '../models/schemas/ImageStatus.schema'
 
 config() // config(): Chức năng này đọc tệp .env và làm cho nội dung của nó có sẵn thông qua process.env
 
@@ -91,6 +92,10 @@ class DatabaseService {
   }
   get followers(): Collection<Followers> {
     return this.db.collection(process.env.DB_FOLLOWERS_CQLLECTION as string)
+  }
+
+  get imageStatus(): Collection<ImageStatus> {
+    return this.db.collection(process.env.DB_IMAGE_STATUS_COLLECTION as string)
   }
 
   get videoStatus(): Collection<VideoStatus> {

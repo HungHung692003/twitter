@@ -5,6 +5,7 @@ import {
   changePasswordController,
   followController,
   forgotPasswordController,
+  getListUsersController,
   getMeController,
   getProfileController,
   getUsersForFollow,
@@ -64,6 +65,11 @@ UserRouter.get('/me', accessTokenValidatetor, wrapRequestHandler(getMeController
 
 // Định nghĩa route lấy profile qua _id
 UserRouter.get('/profile/:_id', wrapRequestHandler(getProfileController))
+
+// Đăng ký route cho việc lấy danh sách người dùng
+UserRouter.get('/listUsers', getListUsersController)
+// Đăng ký route cho việc lấy thông tin người dùng theo _id
+UserRouter.get('/list/users/:_id', getProfileController)
 
 UserRouter.patch(
   '/me',

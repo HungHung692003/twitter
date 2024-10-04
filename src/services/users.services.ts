@@ -257,6 +257,18 @@ class UsersService {
     return user
   }
 
+  // Service để lấy thông tin tất cả người dùng
+  async getAllUsers() {
+    return await databaseService.users
+      .find()
+      .project({
+        password: 0,
+        email_verify_token: 0,
+        forgot_password_token: 0
+      })
+      .toArray()
+  }
+
   async updateMe(user_id: string, payload: UpdateMeReqBody) {
     const _payload = payload.date_of_birth ? { ...payload, date_of_birth: new Date(payload.date_of_birth) } : payload
     const user = await databaseService.users.findOneAndUpdate(

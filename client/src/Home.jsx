@@ -36,6 +36,14 @@ export default function Home() {
         </span>
       </div>
 
+
+      <h2>Image</h2>
+      <div>
+        <span>
+          <img src="http://localhost:3000/static/image/d78f3eca0fca2fcd8c198f001.jpg"/>
+        </span>
+      </div>
+
       <h2>Video Streaming</h2>
       <video controls width={500}>
         <source

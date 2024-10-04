@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Response } from 'express'
 import mediasService from '../services/medias.services'
 import { USERS_MESSAGES } from '../constants/Messager'
 import path from 'path'
@@ -6,16 +6,28 @@ import fs from 'fs'
 //import mime from 'mime'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '../constants/dir'
 import HTTP_STATUS from '../constants/httpStatus'
+import CustomRequest from '../type'
+import { TokenPayload } from '../models/requests/Users.Requests'
 
-export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
-  const url = await mediasService.uploadImage(req)
+export const uploadImageController = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  const user_id = req.decoded_authorization?.user_id as string
+  const url = await mediasService.uploadImageVip(req, user_id)
   return res.json({
     message: USERS_MESSAGES.UPLOAD_SUCCESS,
     result: url
   })
 }
 
-export const uploadVideoController = async (req: Request, res: Response, next: NextFunction) => {
+export const imageController = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const result = await mediasService.getImage(user_id)
+  return res.json({
+    message: USERS_MESSAGES.GET_IMAGE_SUCCESS,
+    result: result
+  })
+}
+
+export const uploadVideoController = async (req: CustomRequest, res: Response, next: NextFunction) => {
   const url = await mediasService.uploadVideo(req)
   return res.json({
     message: USERS_MESSAGES.UPLOAD_SUCCESS,
@@ -23,7 +35,7 @@ export const uploadVideoController = async (req: Request, res: Response, next: N
   })
 }
 
-export const videoStatusController = async (req: Request, res: Response, next: NextFunction) => {
+export const videoStatusController = async (req: CustomRequest, res: Response, next: NextFunction) => {
   const { id } = req.params
   const result = await mediasService.getVideoStatus(id as string)
   return res.json({
@@ -32,7 +44,7 @@ export const videoStatusController = async (req: Request, res: Response, next: N
   })
 }
 
-export const uploadVideoHLSController = async (req: Request, res: Response, next: NextFunction) => {
+export const uploadVideoHLSController = async (req: CustomRequest, res: Response, next: NextFunction) => {
   const url = await mediasService.uploadVideoHLS(req)
   return res.json({
     message: USERS_MESSAGES.UPLOAD_SUCCESS,
@@ -40,7 +52,7 @@ export const uploadVideoHLSController = async (req: Request, res: Response, next
   })
 }
 
-export const serverImageController = (req: Request, res: Response, next: NextFunction) => {
+export const serverImageController = (req: CustomRequest, res: Response, next: NextFunction) => {
   const { name } = req.params
   return res.sendFile(path.resolve(UPLOAD_IMAGE_DIR, name), (err) => {
     if (err) {
@@ -49,7 +61,7 @@ export const serverImageController = (req: Request, res: Response, next: NextFun
   })
 }
 
-export const serverM3u8Controller = (req: Request, res: Response, next: NextFunction) => {
+export const serverM3u8Controller = (req: CustomRequest, res: Response, next: NextFunction) => {
   const { id } = req.params
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8'), (err) => {
     if (err) {
@@ -58,7 +70,7 @@ export const serverM3u8Controller = (req: Request, res: Response, next: NextFunc
   })
 }
 
-export const serverSegmentController = (req: Request, res: Response, next: NextFunction) => {
+export const serverSegmentController = (req: CustomRequest, res: Response, next: NextFunction) => {
   const { id, v, segment } = req.params
   //segment: 0.ts, 1.ts,...
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, v, segment), (err) => {
@@ -68,7 +80,7 @@ export const serverSegmentController = (req: Request, res: Response, next: NextF
   })
 }
 
-export const serverVideoStreamController = async (req: Request, res: Response, next: NextFunction) => {
+export const serverVideoStreamController = async (req: CustomRequest, res: Response, next: NextFunction) => {
   const mime = await import('mime').then((module) => module.default);
   const range = req.headers.range
   if (!range) {
