@@ -265,13 +265,15 @@ class UsersService {
         password: 0,
         email_verify_token: 0,
         forgot_password_token: 0,
+        created_at: 0,
+        updated_at: 0,
         twitter_circle: 0,
         bio: 0,
         location: 0,
         website: 0,
         avatar: 0,
         cover_photo: 0,
-        date_of_birth: 0,
+        date_of_birth: 0
       })
       .toArray()
   }
