@@ -40,14 +40,14 @@ export default function Home() {
       <h2>Image</h2>
       <div>
         <span>
-          <img src="http://localhost:3000/static/image/d78f3eca0fca2fcd8c198f001.jpg"/>
+          <img src="http://localhost:3000/static/image/65089d1ddf1bb3c2b77757000.jpg"/>
         </span>
       </div>
 
       <h2>Video Streaming</h2>
       <video controls width={500}>
         <source
-          src="http://localhost:3000/static/video/qzWSyBZ8lqgzT7mI0yGFk.mp4"
+          src="http://localhost:3000/static/video/nxDprGtUz2KuCRhly3tby.mp4"
           type="video/mp4"
         />
         Your browser does not support the video tag.

@@ -28,7 +28,7 @@ export const imageController = async (req: CustomRequest, res: Response, next: N
 }
 
 export const uploadVideoController = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  const url = await mediasService.uploadVideo(req)
+  const url = await mediasService.uploadVideoVip(req)
   return res.json({
     message: USERS_MESSAGES.UPLOAD_SUCCESS,
     result: url

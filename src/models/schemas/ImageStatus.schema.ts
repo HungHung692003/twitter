@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 
 interface ImageStatusType {
   _id?: ObjectId
-  upload_session_id?: ObjectId
+  upload_session_id?: ObjectId // ảnh được đăng nhiều ảnh cùng 1 lúc
   user_id: ObjectId
   name: string
   status: EncodingStatus

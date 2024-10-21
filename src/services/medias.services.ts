@@ -131,18 +131,18 @@ class MediasService {
   //   return result
   // }
 
-  async uploadVideo(req: Request) {
-    const files = await handleUploadVideo(req)
-    const result: Media[] = files.map((file) => {
-      return {
-        url: isProduction
-          ? `${process.env.HOST}/static/video/${file.newFilename}`
-          : `http://localhost:${process.env.PORT}/static/video/${file.newFilename}`,
-        type: MediaType.Video
-      }
-    })
-    return result
-  }
+  // async uploadVideo(req: Request) {
+  //   const files = await handleUploadVideo(req)
+  //   const result: Media[] = files.map((file) => {
+  //     return {
+  //       url: isProduction
+  //         ? `${process.env.HOST}/static/video/${file.newFilename}`
+  //         : `http://localhost:${process.env.PORT}/static/video/${file.newFilename}`,
+  //       type: MediaType.Video
+  //     }
+  //   })
+  //   return result
+  // }
 
   async uploadVideoHLS(req: Request) {
     const files = await handleUploadVideo(req)
@@ -159,11 +159,6 @@ class MediasService {
       })
     )
     return result
-  }
-
-  async getVideoStatus(id: string) {
-    const data = await databaseService.videoStatus.findOne({ name: id })
-    return data
   }
 
   async uploadImageVip(req: CustomRequest, user_id: string) {
@@ -205,6 +200,40 @@ class MediasService {
   async getImage(upload_session_id: string) {
     const user = await databaseService.users.findOne({ _id: new ObjectId(upload_session_id) })
     return user
+  }
+
+  async uploadVideoVip(req: CustomRequest) {
+    const files = await handleUploadVideo(req)
+
+    const result: Media[] = await Promise.all(
+      files.map(async (file) => {
+        const newName = getNameFromFullname(file.newFilename)
+
+        // Lưu trạng thái upload vào database
+        await databaseService.videoStatus.insertOne(
+          new VideoStatus({
+            name: `http://localhost:3000/static/video/${newName}.mp4`,
+            status: EncodingStatus.Pending // Trạng thái sẽ thay đổi khi xử lý HLS (nếu có)
+          })
+        )
+
+        return {
+          url: isProduction
+            ? `${process.env.HOST}/static/video/${newName}.mp4`
+            : //? `${process.env.HOST}/static/video/${newName}.m3u8`,//cũ
+              `http://localhost:${process.env.PORT}/static/video/${newName}.mp4`,
+          //: `http://localhost:${process.env.PORT}/static/video/${newName}.m3u8`,//cũ
+          type: MediaType.Video
+        }
+      })
+    )
+
+    return result
+  }
+
+  async getVideoStatus(id: string) {
+    const data = await databaseService.videoStatus.findOne({ name: id })
+    return data
   }
 }
 

@@ -30,7 +30,7 @@ export default function Chat() {
       setUsers(data.result); // Giả định `data.result` là danh sách người dùng
     })
     .catch((error) => {
-      console.log('Error fetching users', error); // Xử lý lỗi nếu có
+      console.log('Lỗi khi tìm kiếm người dùng', error); // Xử lý lỗi nếu có
     });
   }, []);
 
