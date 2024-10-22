@@ -285,7 +285,7 @@ export const audienceValidator = wrapRequestHandler(async (req: Request, res: Re
       _id: new ObjectId(tweet.user_id)
     })
 
-    // Kiểm tra tài khoản tác giả có ổn (bị khóa hay bị xóa chưa) không
+    // Kiểm tra tài khoản tác giả có (bị khóa hay bị xóa chưa) không
     if (!author || author.verify === UserVerifyStatus.Banned) {
       throw new ErrorWithStatus({
         status: HTTP_STATUS.NOT_FOUND,
@@ -297,8 +297,8 @@ export const audienceValidator = wrapRequestHandler(async (req: Request, res: Re
 
     // đoạn này được sửa: Thêm kiểm tra xem `twitter_circle` đã được xác định chưa và có phải là một mảng không
     // const isInTwitterCircle =
-    //   Array.isArray(author.twitter_circle) &&
-    //   author.twitter_circle.some((user_circle_id) => user_circle_id.equals(user_id))
+    // Array.isArray(author.twitter_circle) &&
+    // author.twitter_circle.some((user_circle_id) => user_circle_id.equals(user_id))
     const isInTwitterCircle = author.twitter_circle.some((user_cincle_id) => user_cincle_id.equals(user_id))
 
     // Nếu bạn không phải là tác giả và không nằm trong twitter circle thì quăng lỗi
